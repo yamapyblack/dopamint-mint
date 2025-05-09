@@ -20,6 +20,7 @@ import {
 } from "@metaplex-foundation/mpl-candy-machine";
 import { setComputeUnitLimit } from "@metaplex-foundation/mpl-toolbox";
 import { mplTokenMetadata } from "@metaplex-foundation/mpl-token-metadata";
+import { useState } from "react";
 
 interface MintCandyProps {
   onMintSuccess?: () => void;
@@ -27,13 +28,15 @@ interface MintCandyProps {
 
 export default function MintCandy({ onMintSuccess }: MintCandyProps) {
   const { publicKey: walletPubKey, signTransaction, connected } = useWallet();
+  const [isLoading, setIsLoading] = useState(false);
 
   const mintFromClient = async () => {
     if (!connected || !walletPubKey || !signTransaction) {
-      alert("ウォレットが接続されていません");
+      alert("Please connect your wallet first");
       return;
     }
     try {
+      setIsLoading(true);
       // 1. 接続済みウォレットを identity/payer に
       const umi = umiWithCurrentWalletAdapter();
       // const umi = createUmi(clusterApiUrl("devnet"))
@@ -71,25 +74,34 @@ export default function MintCandy({ onMintSuccess }: MintCandyProps) {
 
       // 5. 署名して送信
       const { signature } = await txBuilder.sendAndConfirm(umi);
-      console.log(`Mint 成功: ${signature}`);
+      alert(`Mint successful! Transaction: ${signature}`);
       onMintSuccess?.();
     } catch (error: any) {
-      console.error("Mint エラー", error);
-      alert("Mint 失敗: " + error.message);
+      console.error("Mint error:", error);
+      alert("Mint failed: " + error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <>
-      {/* <div>
-        <button onClick={handleTransferClick}>Transfer</button>
-      </div> */}
-      <div>
+      <div className="relative">
         <button
-          className="bg-[#FFD700] hover:bg-[#e6c200] text-[#0A192F] font-extrabold py-4 px-8 rounded-full text-2xl transition-colors inline-block tracking-wider"
+          className={`bg-[#FFD700] hover:bg-[#e6c200] text-[#0A192F] font-extrabold py-4 px-8 rounded-full text-2xl transition-colors inline-block tracking-wider ${
+            isLoading ? "opacity-50 cursor-not-allowed" : ""
+          }`}
           onClick={mintFromClient}
+          disabled={isLoading}
         >
-          MINT NOW
+          {isLoading ? (
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 border-4 border-[#0A192F] border-t-transparent rounded-full animate-spin"></div>
+              <span>Minting...</span>
+            </div>
+          ) : (
+            "MINT NOW"
+          )}
         </button>
       </div>
     </>
