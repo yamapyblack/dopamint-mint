@@ -70,8 +70,8 @@ export default function MintCandy({ onMintSuccess }: MintCandyProps) {
         );
 
       // 5. 署名して送信
-      // const { signature } = await txBuilder.sendAndConfirm(umi);
-      // console.log(`Mint 成功: ${signature}`);
+      const { signature } = await txBuilder.sendAndConfirm(umi);
+      console.log(`Mint 成功: ${signature}`);
       onMintSuccess?.();
     } catch (error: any) {
       console.error("Mint エラー", error);
