@@ -88,7 +88,7 @@ export default function MintPage() {
                 className="mx-auto mb-12"
               />
               <MintCandy onMintSuccess={handleMintSuccess} />
-              <p className="mt-4 text-gray-400 text-lg">0.1 SOL per NFT</p>
+              <p className="mt-4 text-gray-400 text-lg">0.1 SOL</p>
             </div>
           </div>
         </section>

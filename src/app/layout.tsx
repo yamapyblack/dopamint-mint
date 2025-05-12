@@ -8,8 +8,8 @@ import { UmiProvider } from "@/providers/umiProvider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Metaplex Umi Next.js",
-  description: "Metaplex template for Next.js using Umi",
+  title: "dopamint.fun",
+  description: "dopamint.fun is turning NFT minting into a dopamine experience",
 };
 
 export default function RootLayout({
