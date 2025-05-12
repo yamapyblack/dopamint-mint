@@ -19,7 +19,10 @@ import {
   fetchCandyMachine,
 } from "@metaplex-foundation/mpl-candy-machine";
 import { setComputeUnitLimit } from "@metaplex-foundation/mpl-toolbox";
-import { mplTokenMetadata } from "@metaplex-foundation/mpl-token-metadata";
+import {
+  mplTokenMetadata,
+  fetchDigitalAsset,
+} from "@metaplex-foundation/mpl-token-metadata";
 import { useState } from "react";
 
 interface MintCandyProps {
@@ -39,6 +42,7 @@ export default function MintCandy({ onMintSuccess }: MintCandyProps) {
       setIsLoading(true);
       // 1. 接続済みウォレットを identity/payer に
       const umi = umiWithCurrentWalletAdapter();
+      umi.use(mplCandyMachine()).use(mplTokenMetadata());
       // const umi = createUmi(clusterApiUrl("devnet"))
       //   .use(walletAdapterIdentity({ publicKey, signTransaction }))
       //   .use(mplCandyMachine())
@@ -74,7 +78,23 @@ export default function MintCandy({ onMintSuccess }: MintCandyProps) {
 
       // 5. 署名して送信
       const { signature } = await txBuilder.sendAndConfirm(umi);
-      alert(`Mint successful! Transaction: ${signature}`);
+      console.log(`Mint successful! Transaction: ${signature}`);
+
+      // -------- ここからがポイント：MintしたNFTの画像を取得する手順 --------
+      // 6. MintしたNFTのメタデータを取得
+      const mintedNft = await fetchDigitalAsset(umi, nftMint.publicKey);
+
+      // 7. オフチェーンURI（JSONのURL）を取得
+      const metadataUri = mintedNft.metadata.uri;
+
+      // 8. JSONをfetchしてimageフィールドを取得
+      const response = await fetch(metadataUri);
+      const metaJson = await response.json();
+      const imageUrl = metaJson.image;
+
+      console.log("Minted NFT's image URL:", imageUrl);
+      // あとはReactのstateに入れるなり、imgタグで表示するなり自由に使えます。
+
       onMintSuccess?.();
     } catch (error: any) {
       console.error("Mint error:", error);
