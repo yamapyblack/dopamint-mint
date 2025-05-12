@@ -51,9 +51,18 @@ export default function MintCandy({ onMintSuccess }: MintCandyProps) {
       umi.use(mplCandyMachine()).use(mplTokenMetadata());
 
       // 2. Candy Machine と Candy Guard の取得
-      const cmId = publicKey(process.env.NEXT_PUBLIC_CANDY_MACHINE_ID!);
+      console.log("hoge1");
+      const nextPublicCandyMachineId: string =
+        process.env.NEXT_PUBLIC_CANDY_MACHINE_ID || "";
+      if (!nextPublicCandyMachineId) {
+        throw new Error("NEXT_PUBLIC_CANDY_MACHINE_ID is not set");
+      }
+      const cmId = publicKey(nextPublicCandyMachineId);
+      console.log("hoge2");
       const cm = await fetchCandyMachine(umi, cmId);
+      console.log("hoge3");
       const guard = await safeFetchCandyGuard(umi, cm.mintAuthority);
+      console.log("hoge4");
 
       // 3. 新規NFT用 Mint キーを生成
       const nftMint = generateSigner(umi);
